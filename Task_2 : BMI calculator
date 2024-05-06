@@ -1,0 +1,91 @@
+from tkinter import *
+from tkinter import messagebox
+import matplotlib.pyplot as plt
+
+screen = Tk()
+screen.title("BMI calculator")
+screen.config(pady=100, padx=100)
+
+
+def BMI_cal(weight, height):
+    return round(weight/height**2,2)
+
+def BMI_cal_click():
+    wght = weight_entry.get()
+    hiht = height_entry.get()
+    if len(wght) == 0 or len(hiht) == 0:
+        messagebox.showerror(title="ERROR", message="must fill all fields")
+    else:
+        BMI = BMI_cal(float(wght),float(hiht))
+        BMI_label.insert(END, f"    your BMI : {BMI}")
+        cat = bmi_condition(BMI)
+        categ.append(cat)
+        # print(categ)
+        # plot_graph_bmi(categ)
+
+        BMI_label.insert(END, f"    your BMI : {BMI}")
+        try:
+            with open("data.txt", "r") as data:
+                data.read()
+        except FileNotFoundError:
+            with open("data.txt", "w") as data:
+                data.write(f"{cat}\n")
+        else:
+            with open("data.txt", "a") as data:
+                data.write(f"{cat}\n")
+            with open("data.txt", "r") as data:
+                da = data.readlines()
+                print(da)
+                plot_graph_bmi(da)
+def bmi_condition(bmi):
+    if float(bmi) < 18.5:
+        return "Underweight"
+    elif float(bmi) >=18.5 and float(bmi) < 25:
+        return "HealthWeight"
+    elif float(bmi) > 25:
+        return "OverWeight"
+    else:
+        return "Obese"
+
+
+def plot_graph_bmi(ctgy):
+    countC = {i:ctgy.count(i) for i in ctgy}
+    # print(countC)
+    CName = countC.keys()
+    CValue = countC.values()
+
+    plt.bar(CName, CValue, color=["red", "blue", "grey", "yellow", "black"])
+    plt.title("BMI")
+    plt.xlabel('ctgy')
+    plt.ylabel('count')
+    plt.show()
+
+
+def all_clear():
+
+            weight_entry.delete(0, END)
+            height_entry.delete(0, END)
+            BMI_label.delete(0, END)
+
+
+weight = Label(text="Weight(kg) : ", font=("arial", 15, "normal"))
+weight.grid(column=1, row=0)
+weight_entry = Entry(width=20, font=("arial", 12, "normal"))
+weight_entry.grid(column=2, row=0)
+
+height = Label(text="Height(m) : ", font=("arial", 15, "normal"))
+height.grid(column=1,row=1)
+height_entry = Entry(width=20, font=("arial", 12, "normal"))
+height_entry.grid(column=2,row=1)
+
+calculate_BMI = Button(text="calculate BMI", width=20, height=1, font=("arial", 15, "normal"), command=BMI_cal_click)
+calculate_BMI.grid(column=1, row=2, columnspan=2)
+
+BMI_label = Entry(text="", font=("arial", 20, "bold"))
+BMI_label.grid(column=1, row=3,columnspan=2)
+
+clear = Button(text="clear", font=("arial", 13, "normal"), command=all_clear)
+clear.grid(column=1, row=4, columnspan=2)
+
+categ = []
+screen.mainloop()
